@@ -1,78 +1,55 @@
 import React, { useState, useEffect } from 'react';
 
-const Widget = () => {
+const DraggableWidget = () => {
   const [screenTime, setScreenTime] = useState(0);
   const [isIdle, setIsIdle] = useState(false);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      if (!isIdle) {
-        setScreenTime(prevTime => prevTime + 1);
+    const interval = setInterval(() => {
+      const isUserIdle = /* implement user idleness detection logic */;
+
+      if (isUserIdle) {
+        setIsIdle(true);
+        return;
       }
+
+      setIsIdle(false);
+
+      setScreenTime(prevTime => prevTime + 1);
     }, 1000);
 
-    return () => clearInterval(timer);
-  }, [isIdle]);
+    return () => clearInterval(interval);
+  }, []);
 
   const formatTime = time => {
-    const hours = Math.floor(time / 3600);
-    const minutes = Math.floor((time % 3600) / 60);
-    const seconds = time % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    const hours = Math.floor(time / 3600).toString().padStart(2, '0');
+    const minutes = Math.floor((time % 3600) / 60).toString().padStart(2, '0');
+    const seconds = (time % 60).toString().padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}`;
   };
-
-  const handleMouseMove = () => {
-    setIsIdle(false);
-  };
-
-  const handleKeyPress = () => {
-    setIsIdle(false);
-  };
-
-  const handleIdle = () => {
-    setIsIdle(true);
-  };
-
-  useEffect(() => {
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('keypress', handleKeyPress);
-    window.addEventListener('blur', handleIdle);
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('keypress', handleKeyPress);
-      window.removeEventListener('blur', handleIdle);
-    };
-  }, []);
 
   return (
     <div
       style={{
         position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        background: 'transparent',
-        pointerEvents: 'none',
+        top: 20,
+        left: 20,
+        padding: 10,
+        borderRadius: 8,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        color: 'white',
         zIndex: 9999,
+        userSelect: 'none',
+        cursor: 'move',
+        fontFamily: 'Arial, sans-serif',
+        fontSize: 16,
       }}
     >
-      <div
-        style={{
-          background: 'rgba(0, 0, 0, 0.7)',
-          color: '#fff',
-          padding: '10px 20px',
-          borderRadius: '5px',
-          pointerEvents: 'auto',
-        }}
-      >
+      <div style={{ opacity: isIdle ? 0.5 : 1 }}>
         {isIdle ? 'Idle' : formatTime(screenTime)}
       </div>
     </div>
   );
 };
 
-export default Widget;
+export default DraggableWidget;
